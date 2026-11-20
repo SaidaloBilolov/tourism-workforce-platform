@@ -1,0 +1,17 @@
+EMAIL ULANISHI — TOURISM WORKFORCE PLATFORM (V15)
+
+ALOQA FORMASI
+- Aloqa bo‘limidagi xabarlar va biriktirilgan PDF fayllar fxzm916@gmail.com manziliga yuborish uchun sozlangan.
+- Saytni internetga joylaganingizdan so‘ng aloqa formasidan sinov xabari yuboring. FormSubmit xizmatidan kelgan tasdiqlash xatini fxzm916@gmail.com pochtasida topib, tasdiqlang. Spam/Junk papkasini ham tekshiring.
+
+TASHKILOTDAN TALABAGA XABAR
+- Tashkilot kabineti → Ish e’lonlari → Kelgan arizalar bo‘limida “Profil / Skill Passport” orqali nomzod ma’lumotlari, ko‘nikmalari, tillari, tajribasi va yuklangan fayllarini ko‘rish mumkin.
+- “Talabaga email yuborish” xabari ariza topshirgan talabaning Skill Passport profilida saqlangan emailiga yo‘naltiriladi. Javob uchun tashkilot profilidagi email reply-to sifatida qo‘shiladi; xabarda tashkilot nomi ko‘rsatiladi.
+- Tashkilot profilida aloqa emaili to‘g‘ri kiritilgan bo‘lishi shart. FormSubmit xizmatining qabul qiluvchi email bo‘yicha xavfsizlik/tasdiqlash talablari bo‘lishi mumkin.
+
+SAQLASH
+- Talaba yuklagan sertifikatlar va fayllar endi IndexedDB brauzer bazasida saqlanadi; bu localStorage xotirasi to‘lib qolishi xavfini kamaytiradi. Eski localStorage fayllari imkon bo‘lsa avtomatik ko‘chiriladi.
+- Bu brauzer/qurilmadagi saqlashdir. Brauzer ma’lumotlari tozalansa yoki foydalanuvchi boshqa qurilmadan kirsa, ma’lumotlar avtomatik sinxronlanmaydi. Barcha foydalanuvchilar uchun haqiqiy doimiy va umumiy saqlashga server, markaziy ma’lumotlar bazasi hamda xavfsiz email API kerak bo‘ladi.
+
+MUHIM
+Bu paket statik sayt. Email jo‘natish FormSubmit tashqi xizmati orqali bajariladi; bu xizmatdagi tasdiqlashni amalga oshirmasdan email yetib borishini kafolatlab bo‘lmaydi.
