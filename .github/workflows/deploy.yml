@@ -1,0 +1,107 @@
+name: CI/CD Pipeline & GitHub Pages Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 1. TEST & VALIDATION STAGE
+  validate:
+    name: Code & Asset Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify HTML & JavaScript Syntax
+        run: |
+          node -e '
+            const fs = require("fs");
+            const html = fs.readFileSync("index.html", "utf8");
+            console.log("Validating index.html (size: " + html.length + " bytes)...");
+            const scripts = [...html.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/g)];
+            scripts.forEach((s, idx) => {
+              if (s[1].trim()) {
+                new Function(s[1]);
+                console.log("  ✓ Inline Script " + (idx + 1) + " syntax valid");
+              }
+            });
+            if (fs.existsSync("supabase_client.js")) {
+              const sc = fs.readFileSync("supabase_client.js", "utf8");
+              new Function(sc);
+              console.log("  ✓ supabase_client.js syntax valid");
+            }
+          '
+
+      - name: Check Essential Assets
+        run: |
+          for file in index.html logo.png supabase_client.js; do
+            if [ ! -f "$file" ]; then
+              echo "Error: Required file $file is missing!"
+              exit 1
+            fi
+            echo "✓ Found $file"
+          done
+
+  # 2. DEPLOYMENT STAGE (GitHub Pages)
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # 3. OPTIONAL RENDER DEPLOY HOOK
+  deploy-render:
+    name: Trigger Render.com Deploy (Optional)
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy Hook (if secret configured)
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_HOOK" ]; then
+            echo "Triggering Render deployment..."
+            curl -s -X POST "$RENDER_HOOK"
+            echo "Render deployment triggered successfully."
+          else
+            echo "RENDER_DEPLOY_HOOK is not set, skipping Render webhook trigger."
+          fi
